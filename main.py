@@ -7,8 +7,9 @@ pygame.init()
 clock = pygame.time.Clock()
 pygame.mixer.init()
 
-# Загрузка музыки
-pygame.mixer.music.load('02_red_hot_chili_peppers_snow_hey_oh_myzuka.me.mp3')
+sound1 = pygame.mixer.Sound('musik/02_red_hot_chili_peppers_snow_hey_oh_myzuka.me.mp3')
+sound2 = pygame.mixer.Sound("musik/hell.mp3")
+
 # Window
 win_height = 720
 win_width = 551
@@ -20,7 +21,9 @@ bird_images = [pygame.image.load("images/bird_down.png"),
                pygame.image.load("images/bird_mid.png"),
                pygame.image.load("images/bird_up.png")]
 skyline_image = pygame.image.load("images/background.png")
+skyline_image2 = pygame.image.load("images/background2.png")
 ground_image = pygame.image.load("images/ground.png")
+ground_image2 = pygame.image.load("images/magma_ground.jpg")
 top_pipe_image = pygame.image.load("images/pipe_top.png")
 bottom_pipe_image = pygame.image.load("images/pipe_bottom.png")
 game_over_image = pygame.image.load("images/game_over.png")
@@ -33,6 +36,13 @@ bird_start_position = (100, 250)
 score = 0
 font = pygame.font.SysFont('Segoe', 26)
 game_stopped = True
+
+label = pygame.font.SysFont("Segoe", 50)
+start_map_label = label.render("1 карта", False, (250, 178, 10))
+start_map_label_rect = start_map_label.get_rect(topleft=(215, 400))
+label = pygame.font.SysFont("Segoe", 50)
+start_map_label2 = label.render("2 карта", False, (250, 178, 10))
+start_map_label2_rect = start_map_label2.get_rect(topleft=(215, 430))
 
 
 class Bird(pygame.sprite.Sprite):
@@ -128,7 +138,9 @@ def save_score_to_file(score):
 # Game Main Method
 def main():
     global score
-    pygame.mixer.music.play(-1)
+    global scroll_speed
+    scroll_speed = 4
+    sound1.play()
 
     # Instantiate Bird
     bird = pygame.sprite.GroupSingle()
@@ -176,7 +188,6 @@ def main():
             ground.update()
         bird.update(user_input)
 
-
         # Collision Detection
         collision_pipes = pygame.sprite.spritecollide(bird.sprites()[0], pipes, False)
         collision_ground = pygame.sprite.spritecollide(bird.sprites()[0], ground, False)
@@ -203,7 +214,104 @@ def main():
         clock.tick(60)
         pygame.display.update()
 
-    pygame.mixer.music.stop()
+    sound1.stop()
+
+class Ground2(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = ground_image2
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = x, y
+
+    def update(self):
+        # Move Ground
+        self.rect.x -= scroll_speed
+        if self.rect.x <= -win_width:
+            self.kill()
+
+
+def main2():
+    global score
+    global scroll_speed
+    scroll_speed = 4
+    sound2.play()
+
+
+    # Instantiate Bird
+    bird = pygame.sprite.GroupSingle()
+    bird.add(Bird())
+
+    # Setup Pipes
+    pipe_timer = 0
+    pipes = pygame.sprite.Group()
+
+    # Instantiate Initial Ground
+    x_pos_ground, y_pos_ground = 0, 520
+    ground = pygame.sprite.Group()
+    ground.add(Ground2(x_pos_ground, y_pos_ground))
+
+    run = True
+    while run:
+        # Quit
+        global ghost_x
+        quit_game()
+        # Reset Frame
+        window.fill((0, 0, 0))
+
+        # User Input
+        user_input = pygame.key.get_pressed()
+
+        # Draw Background
+        window.blit(skyline_image2, (0, 0))
+        # Spawn Ground
+        if len(ground) <= 2:
+            ground.add(Ground2(win_width, y_pos_ground))
+
+        # Draw - Pipes, Ground and Bird
+        pipes.draw(window)
+        ground.draw(window)
+        bird.draw(window)
+
+        # Show Score
+        score_text = font.render('Score: ' + str(score), True, pygame.Color(255, 255, 255))
+        window.blit(score_text, (20, 20))
+
+        # Update - Pipes, Ground and Bird
+        if bird.sprite.alive:
+            pipes.update()
+            ground.update()
+        bird.update(user_input)
+
+        # Collision Detection
+        collision_pipes = pygame.sprite.spritecollide(bird.sprites()[0], pipes, False)
+        collision_ground = pygame.sprite.spritecollide(bird.sprites()[0], ground, False)
+        if collision_pipes or collision_ground:
+            bird.sprite.alive = False
+            if collision_ground:
+                window.blit(game_over_image, (win_width // 2 - game_over_image.get_width() // 2,
+                                              win_height // 2 - game_over_image.get_height() // 2))
+                save_score_to_file(score)  # Сохранение счета в файл
+                if user_input[pygame.K_r]:
+                    score = 0
+                    break
+
+        # Spawn Pipes
+        if pipe_timer <= 0 and bird.sprite.alive:
+            x_top, x_bottom = 550, 550
+            y_top = random.randint(-600, -480)
+            y_bottom = y_top + random.randint(90, 130) + bottom_pipe_image.get_height()
+            pipes.add(Pipe(x_top, y_top, top_pipe_image, 'top'))
+            pipes.add(Pipe(x_bottom, y_bottom, bottom_pipe_image, 'bottom'))
+            pipe_timer = random.randint(180, 250)
+        pipe_timer -= 1
+
+
+        clock.tick(60)
+        pygame.display.update()
+
+
+    sound2.stop()
+
 
 
 
@@ -221,10 +329,13 @@ def menu():
         window.blit(start_image, (win_width // 2 - start_image.get_width() // 2,
                                   win_height // 2 - start_image.get_height() // 2))
 
-        # User Input
-        user_input = pygame.key.get_pressed()
-        if user_input[pygame.K_SPACE]:
+        window.blit(start_map_label, start_map_label_rect)
+        window.blit(start_map_label2, start_map_label2_rect)
+        mouse = pygame.mouse.get_pos()
+        if start_map_label_rect.collidepoint(mouse) and pygame.mouse.get_pressed()[0]:
             main()
+        elif start_map_label2_rect.collidepoint(mouse) and pygame.mouse.get_pressed()[0]:
+            main2()
 
         pygame.display.update()
 
