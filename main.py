@@ -34,7 +34,6 @@ start_image = pygame.image.load("images/start.png").convert_alpha()
 ghost = pygame.image.load("images/ghost-costume.png").convert_alpha()
 ghost_x = 721
 
-
 # Game
 scroll_speed = 4
 bird_start_position = (100, 250)
@@ -49,6 +48,7 @@ start_map_label2 = label.render("2 карта", False, (250, 178, 10))
 start_map_label2_rect = start_map_label2.get_rect(topleft=(215, 430))
 start_map_label3 = label.render("3 карта", False, (250, 178, 10))
 start_map_label3_rect = start_map_label2.get_rect(topleft=(215, 460))
+
 
 class Bird(pygame.sprite.Sprite):
     def __init__(self):
@@ -89,6 +89,7 @@ class Bird(pygame.sprite.Sprite):
 
 class Pipe(pygame.sprite.Sprite):
     scroll_speed = 4
+
     def __init__(self, x, y, image, pipe_type):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
@@ -113,6 +114,7 @@ class Pipe(pygame.sprite.Sprite):
             if self.enter and self.exit and not self.passed:
                 self.passed = True
                 score += 1
+
 
 class Pipe2(pygame.sprite.Sprite):
     def __init__(self, x, y, image, pipe_type):
@@ -193,19 +195,11 @@ def main():
 
     run = True
     while run:
-        # Quit
         quit_game()
-
-        # Reset Frame
         window.fill((0, 0, 0))
-
-        # User Input
         user_input = pygame.key.get_pressed()
-
-        # Draw Background
         window.blit(skyline_image, (0, 0))
 
-        # Spawn Ground
         if len(ground) <= 2:
             ground.add(Ground(win_width, y_pos_ground))
 
@@ -283,7 +277,6 @@ def main2():
     scroll_speed = 4
     sound2.play()
 
-
     # Instantiate Bird
     bird = pygame.sprite.GroupSingle()
     bird.add(Bird())
@@ -301,6 +294,9 @@ def main2():
     while run:
         # Quit
         global ghost_x
+        bird_x = bird.sprite.rect.x
+        bird_y = bird.sprite.rect.y
+
         quit_game()
         # Reset Frame
         window.fill((0, 0, 0))
@@ -311,6 +307,11 @@ def main2():
         # Draw Background
         window.blit(skyline_image2, (0, 0))
         window.blit(ghost, (ghost_x, 300))
+        player_rect = bird_images[0].get_rect(topleft=(bird_x, bird_y))
+        ghost_rect = ghost.get_rect(topleft=(ghost_x, 300))
+
+        if player_rect.colliderect(ghost_rect):
+            bird.sprite.alive = False
 
         # Spawn Ground
         if len(ground) <= 2:
@@ -358,7 +359,6 @@ def main2():
 
         clock.tick(60)
         pygame.display.update()
-
 
     sound2.stop()
 
