@@ -9,9 +9,9 @@ clock = pygame.time.Clock()
 pygame.mixer.init()
 
 # Загрузка музыки
-sound1 = pygame.mixer.Sound('musik/02_red_hot_chili_peppers_snow_hey_oh_myzuka.me.mp3')
-sound2 = pygame.mixer.Sound("musik/hell.mp3")
-sound3 = pygame.mixer.Sound("musik/lednik_musik.mp3")
+sound1 = pygame.mixer.Sound('music/02_red_hot_chili_peppers_snow_hey_oh_myzuka.me.mp3')
+sound2 = pygame.mixer.Sound("music/hell.mp3")
+sound3 = pygame.mixer.Sound("music/lednik_musik.mp3")
 # Window
 win_height = 720
 win_width = 551
@@ -283,6 +283,7 @@ def main2():
 
     # Setup Pipes
     pipe_timer = 0
+    ghost_timer = 150
     pipes = pygame.sprite.Group()
 
     # Instantiate Initial Ground
@@ -356,6 +357,13 @@ def main2():
         pipe_timer -= 1
 
         ghost_x -= 10
+
+        window.blit(ghost, (ghost_x, 300))
+        if ghost_timer <= 0:
+            ghost_x = 600
+            ghost_timer = 100
+
+        ghost_timer -= 1
 
         clock.tick(60)
         pygame.display.update()
