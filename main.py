@@ -18,19 +18,21 @@ win_width = 551
 window = pygame.display.set_mode((win_width, win_height))
 
 # Images
-bird_images = [pygame.image.load("images/bird_down.png"),
-               pygame.image.load("images/bird_mid.png"),
-               pygame.image.load("images/bird_up.png")]
-skyline_image = pygame.image.load("images/background.png")
-skyline_image2 = pygame.image.load("images/background2.png")
-skyline_image3 = pygame.image.load("images/lednik.jpg")
-ground_image = pygame.image.load("images/ground.png")
-ground_image2 = pygame.image.load("images/magma_ground.jpg")
-ground_image3 = pygame.image.load("images/led_ground.jpg")
-top_pipe_image = pygame.image.load("images/pipe_top.png")
-bottom_pipe_image = pygame.image.load("images/pipe_bottom.png")
-game_over_image = pygame.image.load("images/game_over.png")
-start_image = pygame.image.load("images/start.png")
+bird_images = [pygame.image.load("images/bird_down.png").convert_alpha(),
+               pygame.image.load("images/bird_mid.png").convert_alpha(),
+               pygame.image.load("images/bird_up.png").convert_alpha()]
+skyline_image = pygame.image.load("images/background.png").convert_alpha()
+skyline_image2 = pygame.image.load("images/background2.png").convert_alpha()
+skyline_image3 = pygame.image.load("images/lednik.jpg").convert_alpha()
+ground_image = pygame.image.load("images/ground.png").convert_alpha()
+ground_image2 = pygame.image.load("images/magma_ground.jpg").convert_alpha()
+ground_image3 = pygame.image.load("images/led_ground.jpg").convert_alpha()
+top_pipe_image = pygame.image.load("images/pipe_top.png").convert_alpha()
+bottom_pipe_image = pygame.image.load("images/pipe_bottom.png").convert_alpha()
+game_over_image = pygame.image.load("images/game_over.png").convert_alpha()
+start_image = pygame.image.load("images/start.png").convert_alpha()
+ghost = pygame.image.load("images/ghost-costume.png").convert_alpha()
+ghost_x = 721
 
 
 # Game
@@ -298,6 +300,7 @@ def main2():
     run = True
     while run:
         # Quit
+        global ghost_x
         quit_game()
         # Reset Frame
         window.fill((0, 0, 0))
@@ -307,6 +310,7 @@ def main2():
 
         # Draw Background
         window.blit(skyline_image2, (0, 0))
+        window.blit(ghost, (ghost_x, 300))
 
         # Spawn Ground
         if len(ground) <= 2:
@@ -350,6 +354,7 @@ def main2():
             pipe_timer = random.randint(180, 250)
         pipe_timer -= 1
 
+        ghost_x -= 10
 
         clock.tick(60)
         pygame.display.update()
