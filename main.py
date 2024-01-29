@@ -283,7 +283,7 @@ def main2():
 
     # Setup Pipes
     pipe_timer = 0
-    ghost_timer = 150
+    ghost_timer = 200
     pipes = pygame.sprite.Group()
 
     # Instantiate Initial Ground
